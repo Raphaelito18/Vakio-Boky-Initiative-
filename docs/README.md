@@ -28,7 +28,7 @@ Elle combine **réseau social**, **marketplace de livres**, **événements litt�
 
 ## Installation (version React)
 ```bash
-git clone https://github.com/vakio-boky/webapp.git
-cd webapp
+git clone https://github.com/Raphaelito18/Vakio-Boky-Initiative-.git
+cd Vakio-Boky-Initiative-
 npm install
 npm run dev
