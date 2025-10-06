@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: optional;
+    src: url('/fonts/inter-regular-webfont.woff2') format('woff2'),
+      url('/fonts/inter-regular-webfont.woff') format('woff');
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: optional;
+    src: url('/fonts/inter-medium-webfont.woff2') format('woff2'),
+      url('/fonts/inter-medium-webfont.woff') format('woff');
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: optional;
+    src: url('/fonts/inter-bold-webfont.woff2') format('woff2'),
+      url('/fonts/inter-bold-webfont.woff') format('woff');
+  }
+
+  h1 {
+    @apply text-3xl font-bold md:text-5xl font-primary;
+  }
+  h2 {
+    @apply text-2xl font-bold md:text-4xl font-primary;
+  }
+  h3 {
+    @apply text-xl font-bold md:text-3xl font-primary;
+  }
+  h4 {
+    @apply text-lg font-bold font-primary;
+  }
+  body {
+    @apply text-sm font-primary md:text-base;
+  }
+  .layout {
+    max-width: 68.75rem;
+    @apply w-11/12 mx-auto;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-slideUp {
+  animation: slideUp 0.8s ease-out forwards;
+}
+.animate-slideUp.delay-100 {
+  animation-delay: 0.1s;
+}
+.animate-slideUp.delay-200 {
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 1s ease-out forwards;
+}
+.animate-fadeIn.delay-200 {
+  animation-delay: 0.2s;
+}
+.animate-fadeIn.delay-400 {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
