@@ -19,8 +19,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 // non connecte
-import { FiSearch, FiBell, FiUser } from "react-icons/fi";
-import { FaShoppingCart, FaBookOpen, FaHome } from "react-icons/fa";
+import { FiSearch, FiBell, FiUser, FiBookOpen, FiShoppingCart, FiHome } from "react-icons/fi";
+// import { FaShoppingCart, FaBookOpen, FaHome } from "react-icons/fa";
 
 export default function Header() {
   return (
@@ -38,7 +38,7 @@ export default function Header() {
         {/*centre*/}
         <div className="flex items-center gap-6 text-blue-900 font-mono">
           <a href="#" className="flex items-center gap-1 hover:text-blue-600">
-            <FaHome className="text-blue-900" /> Accueil
+            <FiHome className="text-blue-900" /> Accueil
           </a>
 
           {/* Barre de recherche */}
@@ -52,11 +52,11 @@ export default function Header() {
           </div>
 
           <a href="#" className="flex items-center gap-1 hover:text-blue-600">
-            <FaBookOpen className="text-blue-900" /> Bibliothèque
+            <FiBookOpen className="text-blue-900" /> Bibliothèque
           </a>
 
           <a href="#" className="flex items-center gap-1 hover:text-blue-600">
-            <FaShoppingCart className="text-blue-900" /> Marketplace
+            <FiShoppingCart className="text-blue-900" /> Marketplace
           </a>
         </div>
 
@@ -79,8 +79,8 @@ export default function Header() {
 // connecte: Rehefa gerer nny back @login de tokony code 1 ihany de arakaraka hoe connecte ve sa tsia de arakaraka
 // header miseho
 
-// import { FiSearch, FiBell, FiUser, FiSettings, FiHome, FiBook, FiShoppingCart, FiCalendar, FiHeart } from "react-icons/fi";
-// // import { FaShoppingCart, FaBookOpen, FaHome } from "react-icons/fa";
+// import { FiSearch, FiBell, FiUser, FiSettings, FiHome, FiBookOpen, FiShoppingCart, FiCalendar, FiHeart } from "react-icons/fi";
+
 
 // export default function Header() {
 //   return (
@@ -100,7 +100,7 @@ export default function Header() {
 //             <FiHome className="text-blue-900" /> Accueil
 //           </a>
 //           <a href="#" className="flex items-center gap-1 hover:text-blue-600">
-//             <FiBook className="text-blue-900" /> Bibliothèque
+//             <FiBookOpen className="text-blue-900" /> Bibliothèque
 //           </a>
 //           <a href="#" className="flex items-center gap-1 hover:text-blue-600">
 //             <FiShoppingCart className="text-blue-900" /> Marketplace
