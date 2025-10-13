@@ -15,7 +15,23 @@
 import Header from "@/components/layout/Header";
 import "@/index.css";
 
+//
+import { useNavigate } from "react-router-dom";
+import Explore from "../Explore/Explore";
+
+
 export default function App() {
+
+  const nav = useNavigate();
+
+  const explore = () => {
+    nav("/explore");
+  }
+
+  const login = () => {
+    nav("/login");
+  }
+
   return (
     <div className="relative min-h-screen text-gray-800">
       {/* Image: Juste pour voir  */}
@@ -55,6 +71,9 @@ export default function App() {
               des livres. »
             </p>
           </div>
+          {/* test de pagePubIic */}
+          <button onClick={explore}>ExpoIrer</button>
+          <button onClick={login}>Se connecter</button>
         </main>
       </div>
     </div>
