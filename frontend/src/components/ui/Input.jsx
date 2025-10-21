@@ -39,7 +39,7 @@ export default function Input({
         onChange={onChange}
         className='outline-none w-full bg-transparent text-sm'
       />
-      {icon && <span className='ml-2'>{icon}</span>}
+      {icon && <span className='ml-2 cursor-pointer'>{icon}</span>}
     </motion.div>
   );
 }
