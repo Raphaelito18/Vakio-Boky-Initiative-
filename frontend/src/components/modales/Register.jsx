@@ -225,7 +225,7 @@ export default function Register() {
             )}
           </div>
 
-          {/* Case à cocher Newsletter */}
+          {/* Case à cocher */}
           <motion.div
             whileHover={{ scale: 1.02 }}
             className="flex items-center space-x-2"

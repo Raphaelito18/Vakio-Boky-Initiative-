@@ -30,7 +30,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* //profiIe */}
 
-<Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       <Footer />
     </Router>
