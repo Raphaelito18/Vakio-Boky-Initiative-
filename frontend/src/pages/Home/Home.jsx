@@ -1,7 +1,18 @@
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Button from '@/components/ui/Button';
 
+// 
+import Login from '@/components/modales/Login';
+
 export default function App() {
+
+  const nav = useNavigate();
+
+  const handleLogin = () => {
+    nav ("/login");
+  }
+
   return (
     <div className='relative min-h-screen text-gray-900 overflow-hidden'>
       {/* --- Arrière-plan flou avec léger zoom --- */}
@@ -49,7 +60,7 @@ export default function App() {
 
           {/* --- Boutons d’action dynamiques --- */}
           <div className='flex flex-wrap gap-4 justify-center mt-10 animate-fadeIn delay-600'>
-            <Button variant='primary' size='lg'>
+            <Button variant='primary' size='lg'onClick={handleLogin}>
               Découvrir la communauté
             </Button>
             <Button variant='outline' size='lg'>
