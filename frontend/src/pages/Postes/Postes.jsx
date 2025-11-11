@@ -247,7 +247,7 @@ export default function Postes() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <motion.div
+          {/* <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
@@ -257,7 +257,7 @@ export default function Postes() {
             <span className="block text-sm font-light">
               Fil d'Actualité Littéraire
             </span>
-          </motion.div>
+          </motion.div> */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -300,27 +300,34 @@ export default function Postes() {
               </motion.div>
 
               {/* Modal */}
-              <Modal isOpen={showModal} onClose={() => setShowModal(false)} className="py-3">
-               <div className="p-3">
-                 <h3 className="text-lg font-bold text-blue-900 mb-4">
-                  Éditez votre publication
-                </h3>
-                <ReactQuill
-                  theme="snow"
-                  value={newPostContent}
-                  onChange={setNewPostContent}
-                  modules={modules}
-                  className="bg-white min-h-[200px]"
-                />
-                <div className="flex justify-end mt-4 gap-2">
-                  <Button variant="outline" onClick={() => setShowModal(false)}>
-                    Annuler
-                  </Button>
-                  <Button onClick={() => handleSave(newPostContent)}>
-                    Enregistrer
-                  </Button>
+              <Modal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                className="py-3"
+              >
+                <div className="p-3">
+                  <h3 className="text-lg font-bold text-blue-900 mb-4">
+                    Éditez votre publication
+                  </h3>
+                  <ReactQuill
+                    theme="snow"
+                    value={newPostContent}
+                    onChange={setNewPostContent}
+                    modules={modules}
+                    className="bg-white min-h-[200px]"
+                  />
+                  <div className="flex justify-end mt-4 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowModal(false)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button onClick={() => handleSave(newPostContent)}>
+                      Enregistrer
+                    </Button>
+                  </div>
                 </div>
-               </div>
               </Modal>
             </div>
 
@@ -439,9 +446,9 @@ export default function Postes() {
                   {/* Header du post */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                         {post.auteur_nom ? (
-                          <span className="text-blue-800 font-bold text-sm">
+                          <span className="text-blue-800 font-bold text-3xl">
                             {post.auteur_nom.charAt(0).toUpperCase()}
                           </span>
                         ) : (
@@ -449,7 +456,7 @@ export default function Postes() {
                         )}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-blue-900">
+                        <h3 className="font-semibold text-blue-900 text-xl">
                           {post.auteur_nom || "Utilisateur"}
                         </h3>
                         <p className="text-blue-400 text-sm">
@@ -545,9 +552,11 @@ export default function Postes() {
                   ) : (
                     <>
                       <div className="mb-4">
-                        <p className="text-blue-800 leading-relaxed whitespace-pre-line">
-                          {post.contenu}
-                        </p>
+                        <div
+                          className="text-blue-800 leading-relaxed"
+                          dangerouslySetInnerHTML={{ __html: post.contenu }}
+                        />
+
                         {post.media_url && (
                           <div className="mt-4 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                             {post.type_post === "image" && (

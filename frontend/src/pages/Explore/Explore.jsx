@@ -167,14 +167,14 @@ export default function Explore() {
           transition={{ delay: 1.6 }}
           className="text-center flex items-center gap-4"
         >
-          <Button
+          {/* <Button
             variant="primary"
             size="lg"
             onClick={handleProfile}
           >
             <FiUser size={20} />
             Mon Profil
-          </Button>
+          </Button> */}
           {/* test postes */}
           <Button
             variant="primary"
@@ -213,19 +213,19 @@ export default function Explore() {
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
         >
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="text-2xl font-bold text-blue-600">1,200+</div>
+            <div className="text-3xl font-bold text-blue-600">1,200+</div>
             <div className="text-gray-600">Livres</div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="text-2xl font-bold text-green-600">350+</div>
+            <div className="text-3xl font-bold text-green-600">350+</div>
             <div className="text-gray-600">Auteurs</div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="text-2xl font-bold text-purple-600">15+</div>
+            <div className="text-3xl font-bold text-purple-600">15+</div>
             <div className="text-gray-600">Genres</div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="text-2xl font-bold text-orange-600">5,000+</div>
+            <div className="text-3xl font-bold text-orange-600">5,000+</div>
             <div className="text-gray-600">Lecteurs</div>
           </div>
         </motion.div>
