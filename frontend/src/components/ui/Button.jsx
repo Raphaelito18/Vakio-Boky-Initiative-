@@ -25,7 +25,7 @@ export default function Button({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className={clsx(
-        'rounded-full font-semibold transition-all duration-200 shadow-lg',
+        'rounded-full font-semibold transition-all duration-200 shadow-lg flex gap-2',
         VARIANTS[variant],
         SIZES[size]
       )}

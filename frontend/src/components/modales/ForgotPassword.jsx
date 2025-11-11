@@ -1,46 +1,48 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FiMail, FiArrowLeft } from 'react-icons/fi';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { FiMail, FiArrowLeft } from "react-icons/fi";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { useNavigate } from "react-router-dom";
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('📧 Un code de vérification a été envoyé à votre email');
-        // Stocker l'email pour les étapes suivantes
-        localStorage.setItem('resetEmail', email);
+        setMessage("📧 Un code de vérification a été envoyé à votre email");
+        localStorage.setItem("resetEmail", email);
         setTimeout(() => {
-          navigate('/verify-code');
+          navigate("/verify-code");
         }, 2000);
       } else {
-        setMessage(data.error || 'Erreur lors de l\'envoi du code');
+        setMessage(data.error || "Erreur lors de l'envoi du code");
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion au serveur');
+      console.error("Erreur:", error);
+      setMessage("Erreur de connexion au serveur");
     } finally {
       setLoading(false);
     }
@@ -54,18 +56,16 @@ export default function ForgotPassword() {
         transition={{ duration: 0.5 }}
         className="bg-white rounded-2xl shadow-xl border border-blue-200 p-8 w-full max-w-md"
       >
-        {/* Bouton retour */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate('/login')}
+          onClick={() => navigate("/login")}
           className="flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors"
         >
           <FiArrowLeft className="mr-2" />
           Retour
         </motion.button>
 
-        {/* En-tête */}
         <div className="text-center mb-8">
           <motion.div
             initial={{ scale: 0 }}
@@ -74,9 +74,11 @@ export default function ForgotPassword() {
             className="bg-blue-800 text-white rounded-lg px-4 py-3 inline-block mb-4"
           >
             <span className="block font-bold text-lg">#Vakio_Boky</span>
-            <span className="block text-sm font-light">Communauté Littéraire</span>
+            <span className="block text-sm font-light">
+              Communauté Littéraire
+            </span>
           </motion.div>
-          
+
           <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -85,7 +87,7 @@ export default function ForgotPassword() {
           >
             Mot de passe oublié ?
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -96,7 +98,6 @@ export default function ForgotPassword() {
           </motion.p>
         </div>
 
-        {/* Formulaire */}
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0 }}
@@ -104,7 +105,6 @@ export default function ForgotPassword() {
           transition={{ delay: 0.5 }}
           className="space-y-6"
         >
-          {/* Champ Email */}
           <div className="space-y-2">
             <label className="text-blue-900 text-sm font-medium block">
               Adresse email
@@ -123,22 +123,20 @@ export default function ForgotPassword() {
             </motion.div>
           </div>
 
-          {/* Message */}
           {message && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className={`p-3 rounded-lg text-sm ${
-                message.includes('code') 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
+                message.includes("code")
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
               }`}
             >
               {message}
             </motion.div>
           )}
 
-          {/* Bouton d'envoi */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
               variant="primary"
@@ -147,11 +145,12 @@ export default function ForgotPassword() {
               disabled={loading}
               className="w-full"
             >
-              {loading ? 'Envoi en cours...' : 'Envoyer le code de vérification'}
+              {loading
+                ? "Envoi en cours..."
+                : "Envoyer le code de vérification"}
             </Button>
           </motion.div>
 
-          {/* Lien vers connexion */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -159,11 +158,11 @@ export default function ForgotPassword() {
             className="text-center"
           >
             <p className="text-blue-900 text-sm">
-              Vous vous souvenez ?{' '}
+              Vous vous souvenez ?{" "}
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.05 }}
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="text-blue-600 font-semibold hover:text-blue-800 transition-colors underline"
               >
                 Se connecter

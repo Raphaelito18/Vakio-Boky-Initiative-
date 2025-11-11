@@ -1,26 +1,26 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FiArrowLeft, FiRefreshCw } from 'react-icons/fi';
-import Button from '@/components/ui/Button';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import { FiArrowLeft, FiRefreshCw } from "react-icons/fi";
+import Button from "@/components/ui/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function VerifyCode() {
-  const [code, setCode] = useState(['', '', '', '', '', '']);
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isResending, setIsResending] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
 
   const navigate = useNavigate();
   const inputRefs = useRef([]);
 
   useEffect(() => {
     // Récupérer l'email depuis le localStorage
-    const savedEmail = localStorage.getItem('resetEmail');
+    const savedEmail = localStorage.getItem("resetEmail");
     if (savedEmail) {
       setEmail(savedEmail);
     } else {
-      navigate('/forgot-password');
+      navigate("/forgot-password");
     }
   }, [navigate]);
 
@@ -36,59 +36,62 @@ export default function VerifyCode() {
       }
 
       // Si le code est complet, vérifier automatiquement
-      if (newCode.every(digit => digit !== '') && index === 5) {
+      if (newCode.every((digit) => digit !== "") && index === 5) {
         handleVerify();
       }
     }
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
+    if (e.key === "Backspace" && !code[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
   const handleVerify = async () => {
-    const verificationCode = code.join('');
-    
+    const verificationCode = code.join("");
+
     if (verificationCode.length !== 6) {
-      setMessage('Veuillez entrer le code complet à 6 chiffres');
+      setMessage("Veuillez entrer le code complet à 6 chiffres");
       return;
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          code: verificationCode
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/auth/verify-code",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            code: verificationCode,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('✅ Code vérifié avec succès');
+        setMessage("✅ Code vérifié avec succès");
         // Stocker le token pour la réinitialisation
-        localStorage.setItem('resetToken', data.resetToken);
+        localStorage.setItem("resetToken", data.resetToken);
         setTimeout(() => {
-          navigate('/reset-password');
+          navigate("/reset-password");
         }, 1000);
       } else {
-        setMessage(data.error || 'Code invalide ou expiré');
+        setMessage(data.error || "Code invalide ou expiré");
         // Réinitialiser le code en cas d'erreur
-        setCode(['', '', '', '', '', '']);
+        setCode(["", "", "", "", "", ""]);
         inputRefs.current[0].focus();
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion au serveur');
+      console.error("Erreur:", error);
+      setMessage("Erreur de connexion au serveur");
     } finally {
       setLoading(false);
     }
@@ -96,27 +99,30 @@ export default function VerifyCode() {
 
   const handleResendCode = async () => {
     setIsResending(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('📧 Nouveau code envoyé à votre email');
+        setMessage("📧 Nouveau code envoyé à votre email");
       } else {
-        setMessage(data.error || 'Erreur lors de l\'envoi du code');
+        setMessage(data.error || "Erreur lors de l'envoi du code");
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion au serveur');
+      console.error("Erreur:", error);
+      setMessage("Erreur de connexion au serveur");
     } finally {
       setIsResending(false);
     }
@@ -134,7 +140,7 @@ export default function VerifyCode() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate('/forgot-password')}
+          onClick={() => navigate("/forgot-password")}
           className="flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors"
         >
           <FiArrowLeft className="mr-2" />
@@ -150,9 +156,11 @@ export default function VerifyCode() {
             className="bg-blue-800 text-white rounded-lg px-4 py-3 inline-block mb-4"
           >
             <span className="block font-bold text-lg">#Vakio_Boky</span>
-            <span className="block text-sm font-light">Communauté Littéraire</span>
+            <span className="block text-sm font-light">
+              Communauté Littéraire
+            </span>
           </motion.div>
-          
+
           <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -161,7 +169,7 @@ export default function VerifyCode() {
           >
             Vérification du code
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -184,7 +192,7 @@ export default function VerifyCode() {
             {code.map((digit, index) => (
               <motion.input
                 key={index}
-                ref={el => inputRefs.current[index] = el}
+                ref={(el) => (inputRefs.current[index] = el)}
                 type="text"
                 inputMode="numeric"
                 maxLength="1"
@@ -205,9 +213,9 @@ export default function VerifyCode() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className={`p-3 rounded-lg text-sm text-center ${
-                message.includes('✅') || message.includes('Nouveau code')
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
+                message.includes("✅") || message.includes("Nouveau code")
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
               }`}
             >
               {message}
@@ -220,10 +228,10 @@ export default function VerifyCode() {
               variant="primary"
               size="lg"
               onClick={handleVerify}
-              disabled={loading || code.some(digit => digit === '')}
+              disabled={loading || code.some((digit) => digit === "")}
               className="w-full disabled:opacity-50"
             >
-              {loading ? 'Vérification...' : 'Vérifier le code'}
+              {loading ? "Vérification..." : "Vérifier le code"}
             </Button>
           </motion.div>
 
@@ -241,8 +249,10 @@ export default function VerifyCode() {
               disabled={isResending}
               className="flex items-center justify-center text-blue-600 hover:text-blue-800 transition-colors mx-auto disabled:opacity-50"
             >
-              <FiRefreshCw className={`mr-2 ${isResending ? 'animate-spin' : ''}`} />
-              {isResending ? 'Envoi en cours...' : 'Renvoyer le code'}
+              <FiRefreshCw
+                className={`mr-2 ${isResending ? "animate-spin" : ""}`}
+              />
+              {isResending ? "Envoi en cours..." : "Renvoyer le code"}
             </motion.button>
           </motion.div>
         </motion.div>

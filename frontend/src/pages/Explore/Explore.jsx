@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiBook, FiUser, FiSearch, FiStar } from "react-icons/fi";
+import { FiBook, FiUser, FiSearch, FiStar, FiUsers, FiBookOpen, FiFileText } from "react-icons/fi";
 import Button from "@/components/ui/Button";
 
 export default function Explore() {
@@ -10,6 +10,17 @@ export default function Explore() {
 
   const handleProfile = () => {
     nav("/profile");
+  };
+  //poste
+  const handlePostes = () => {
+    nav("/postes");
+  };
+  const handleBook = () => {
+    nav("/booklist");
+  };
+
+  const handleClub = () => {
+    nav("/club");
   };
 
   const categories = [
@@ -154,16 +165,43 @@ export default function Explore() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.6 }}
-          className="text-center"
+          className="text-center flex items-center gap-4"
         >
           <Button
             variant="primary"
             size="lg"
             onClick={handleProfile}
-            className="flex items-center mx-auto"
           >
-            <FiUser className="mr-2" />
-            Voir Mon Profil
+            <FiUser size={20} />
+            Mon Profil
+          </Button>
+          {/* test postes */}
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handlePostes}
+          >
+            <FiFileText size={20} />
+            Tester Postes
+          </Button>
+          {/* test livresETextraits */}
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handleBook}
+          >
+            <FiBookOpen size={20} />
+            Livres & Extraits
+          </Button>
+
+          {/* test club */}
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={handleClub}
+          >
+            <FiUsers size={20} />
+            Clubs
           </Button>
         </motion.div>
 

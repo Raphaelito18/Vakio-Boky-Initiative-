@@ -1,126 +1,10 @@
-// // controllers/authController.js
-// import pool from "../config/db.js";
-// import bcrypt from "bcryptjs";
-// import generateToken from "../utils/generateToken.js";
-
-// // Login utilisateur
-// const login = async (req, res) => {
-//   try {
-//     const { email, mot_de_passe } = req.body;
-
-//     if (!email || !mot_de_passe) {
-//       return res.status(400).json({ error: "Email et mot de passe requis" });
-//     }
-
-//     // Vérifier si l'utilisateur existe
-//     const result = await pool.query(
-//       "SELECT * FROM utilisateur WHERE email = $1",
-//       [email]
-//     );
-
-//     if (result.rows.length === 0) {
-//       return res.status(401).json({ error: "Email ou mot de passe incorrect" });
-//     }
-
-//     const user = result.rows[0];
-
-//     // Vérifier le mot de passe
-//     const isPasswordValid = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
-    
-//     if (!isPasswordValid) {
-//       return res.status(401).json({ error: "Email ou mot de passe incorrect" });
-//     }
-
-//     // Générer le token
-//     const token = generateToken(user.id);
-
-//     res.json({
-//       token,
-//       user: {
-//         id: user.id,
-//         nom: user.nom,
-//         email: user.email,
-//         role: user.role,
-//         telephone: user.telephone,
-//         genre_prefere: user.genre_prefere
-//       }
-//     });
-
-//   } catch (error) {
-//     console.error("Erreur login:", error);
-//     res.status(500).json({ error: "Erreur serveur lors de la connexion" });
-//   }
-// };
-
-// // Inscription utilisateur
-// const register = async (req, res) => {
-//   try {
-//     const { 
-//       nom, 
-//       email, 
-//       mot_de_passe, 
-//       telephone, 
-//       genre_prefere,
-//       accepte_newsletter 
-//     } = req.body;
-
-//     if (!nom || !email || !mot_de_passe) {
-//       return res.status(400).json({ error: "Nom, email et mot de passe sont requis" });
-//     }
-
-//     // Vérifier si l'email existe déjà
-//     const userExists = await pool.query(
-//       "SELECT id FROM utilisateur WHERE email = $1",
-//       [email]
-//     );
-
-//     if (userExists.rows.length > 0) {
-//       return res.status(400).json({ error: "Un utilisateur avec cet email existe déjà" });
-//     }
-
-//     // Hasher le mot de passe
-//     const saltRounds = 10;
-//     const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
-
-//     // Insérer le nouvel utilisateur
-//     const result = await pool.query(
-//       `INSERT INTO utilisateur 
-//        (nom, email, mot_de_passe, telephone, genre_prefere, accepte_newsletter) 
-//        VALUES ($1, $2, $3, $4, $5, $6) 
-//        RETURNING id, nom, email, role, telephone, genre_prefere, created_at`,
-//       [nom, email, hashedPassword, telephone || null, genre_prefere || null, accepte_newsletter || false]
-//     );
-
-//     const newUser = result.rows[0];
-//     const token = generateToken(newUser.id);
-
-//     res.status(201).json({
-//       message: "Utilisateur créé avec succès",
-//       token,
-//       user: {
-//         id: newUser.id,
-//         nom: newUser.nom,
-//         email: newUser.email,
-//         role: newUser.role,
-//         telephone: newUser.telephone,
-//         genre_prefere: newUser.genre_prefere
-//       }
-//     });
-
-//   } catch (error) {
-//     console.error("Erreur register:", error);
-//     res.status(500).json({ error: "Erreur serveur lors de l'inscription" });
-//   }
-// };
-
-// export { login, register };
 import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import generateToken from "../utils/generateToken.js";
 import { sendEmail } from "../utils/emailService.js";
 
-// Stockage temporaire des codes de réinitialisation (en production, utiliser Redis)
+// Stockage temporaire des codes
 const resetCodes = new Map();
 
 // Login utilisateur
@@ -142,8 +26,11 @@ const login = async (req, res) => {
     }
 
     const user = result.rows[0];
-    const isPasswordValid = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
-    
+    const isPasswordValid = await bcrypt.compare(
+      mot_de_passe,
+      user.mot_de_passe
+    );
+
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Email ou mot de passe incorrect" });
     }
@@ -160,10 +47,9 @@ const login = async (req, res) => {
         telephone: user.telephone,
         genre_prefere: user.genre_prefere,
         bio: user.bio,
-        photo_profil: user.photo_profil
-      }
+        photo_profil: user.photo_profil,
+      },
     });
-
   } catch (error) {
     console.error("Erreur login:", error);
     res.status(500).json({ error: "Erreur serveur lors de la connexion" });
@@ -173,17 +59,19 @@ const login = async (req, res) => {
 // Inscription utilisateur
 const register = async (req, res) => {
   try {
-    const { 
-      nom, 
-      email, 
-      mot_de_passe, 
-      telephone, 
+    const {
+      nom,
+      email,
+      mot_de_passe,
+      telephone,
       genre_prefere,
-      accepte_newsletter 
+      accepte_newsletter,
     } = req.body;
 
     if (!nom || !email || !mot_de_passe) {
-      return res.status(400).json({ error: "Nom, email et mot de passe sont requis" });
+      return res
+        .status(400)
+        .json({ error: "Nom, email et mot de passe sont requis" });
     }
 
     const userExists = await pool.query(
@@ -192,7 +80,9 @@ const register = async (req, res) => {
     );
 
     if (userExists.rows.length > 0) {
-      return res.status(400).json({ error: "Un utilisateur avec cet email existe déjà" });
+      return res
+        .status(400)
+        .json({ error: "Un utilisateur avec cet email existe déjà" });
     }
 
     const saltRounds = 10;
@@ -203,7 +93,14 @@ const register = async (req, res) => {
        (nom, email, mot_de_passe, telephone, genre_prefere, accepte_newsletter) 
        VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING id, nom, email, role, telephone, genre_prefere, bio, photo_profil, created_at`,
-      [nom, email, hashedPassword, telephone || null, genre_prefere || null, accepte_newsletter || false]
+      [
+        nom,
+        email,
+        hashedPassword,
+        telephone || null,
+        genre_prefere || null,
+        accepte_newsletter || false,
+      ]
     );
 
     const newUser = result.rows[0];
@@ -220,10 +117,9 @@ const register = async (req, res) => {
         telephone: newUser.telephone,
         genre_prefere: newUser.genre_prefere,
         bio: newUser.bio,
-        photo_profil: newUser.photo_profil
-      }
+        photo_profil: newUser.photo_profil,
+      },
     });
-
   } catch (error) {
     console.error("Erreur register:", error);
     res.status(500).json({ error: "Erreur serveur lors de l'inscription" });
@@ -247,25 +143,25 @@ const forgotPassword = async (req, res) => {
 
     if (result.rows.length === 0) {
       // Pour la sécurité, on ne révèle pas si l'email existe ou non
-      return res.json({ 
-        message: "Si l'email existe, un code de réinitialisation a été envoyé" 
+      return res.json({
+        message: "Si l'email existe, un code de réinitialisation a été envoyé",
       });
     }
 
     const user = result.rows[0];
-    
+
     // Générer un code à 6 chiffres
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expirationTime = Date.now() + 15 * 60 * 1000; // 15 minutes
 
-    // Stocker le code (en production, utiliser Redis avec expiration)
+    // Stocker le code
     resetCodes.set(email, {
       code: resetCode,
       expires: expirationTime,
-      userId: user.id
+      userId: user.id,
     });
 
-    // Envoyer l'email (à implémenter avec votre service d'email)
+    // Envoyer l'email
     try {
       await sendEmail({
         to: email,
@@ -283,23 +179,21 @@ const forgotPassword = async (req, res) => {
             <br>
             <p>Cordialement,<br>L'équipe Vakio Boky</p>
           </div>
-        `
+        `,
       });
     } catch (emailError) {
       console.error("Erreur envoi email:", emailError);
-      // En développement, on retourne le code directement
-      if (process.env.NODE_ENV === 'development') {
-        return res.json({ 
+      if (process.env.NODE_ENV === "development") {
+        return res.json({
           message: "Code de réinitialisation (DEV): " + resetCode,
-          code: resetCode // Seulement en développement
+          code: resetCode,
         });
       }
     }
 
-    res.json({ 
-      message: "Si l'email existe, un code de réinitialisation a été envoyé" 
+    res.json({
+      message: "Si l'email existe, un code de réinitialisation a été envoyé",
     });
-
   } catch (error) {
     console.error("Erreur forgotPassword:", error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -332,13 +226,13 @@ const verifyCode = async (req, res) => {
 
     // Générer un token temporaire pour la réinitialisation
     const resetToken = jwt.sign(
-      { 
-        userId: storedData.userId, 
+      {
+        userId: storedData.userId,
         email: email,
-        purpose: 'password_reset' 
-      }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '15m' }
+        purpose: "password_reset",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
     );
 
     // Supprimer le code utilisé
@@ -346,9 +240,8 @@ const verifyCode = async (req, res) => {
 
     res.json({
       message: "Code vérifié avec succès",
-      resetToken
+      resetToken,
     });
-
   } catch (error) {
     console.error("Erreur verifyCode:", error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -365,7 +258,9 @@ const resetPassword = async (req, res) => {
     }
 
     if (newPassword.length < 6) {
-      return res.status(400).json({ error: "Le mot de passe doit contenir au moins 6 caractères" });
+      return res
+        .status(400)
+        .json({ error: "Le mot de passe doit contenir au moins 6 caractères" });
     }
 
     // Vérifier le token
@@ -376,7 +271,7 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ error: "Token invalide ou expiré" });
     }
 
-    if (decoded.purpose !== 'password_reset' || decoded.email !== email) {
+    if (decoded.purpose !== "password_reset" || decoded.email !== email) {
       return res.status(400).json({ error: "Token invalide" });
     }
 
@@ -391,19 +286,12 @@ const resetPassword = async (req, res) => {
     );
 
     res.json({
-      message: "Mot de passe réinitialisé avec succès"
+      message: "Mot de passe réinitialisé avec succès",
     });
-
   } catch (error) {
     console.error("Erreur resetPassword:", error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-export { 
-  login, 
-  register, 
-  forgotPassword, 
-  verifyCode, 
-  resetPassword 
-};
+export { login, register, forgotPassword, verifyCode, resetPassword };

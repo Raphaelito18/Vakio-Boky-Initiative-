@@ -6,6 +6,9 @@ import Input from "@/components/ui/Input";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
+//redirection inteIIigente
+import { useLocation} from 'react-router-dom';
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
@@ -14,11 +17,63 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+   const location = useLocation();
   // redirection
   const handleRegister = () => navigate("/register");
   const handleForgotPassword = () => navigate("/forgot-password");
 
   // login
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   try {
+  //     const response = await fetch("http://localhost:5000/api/auth/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, mot_de_passe: motDePasse }),
+  //     });
+
+  //     const data = await response.json();
+  //     console.log("🔐 Réponse du login:", data);
+
+  //     // Dans handleSubmit du Login.jsx - CORRIGEZ cette partie :
+  //     if (response.ok) {
+  //       const userData = {
+  //         token: data.token,
+  //         user: {
+  //           id: data.user.id,
+  //           nom: data.user.nom, // ✅ AJOUTEZ CECI
+  //           email: data.user.email, // ✅ AJOUTEZ CECI
+  //           role: data.user.role,
+  //           telephone: data.user.telephone, // ✅ AJOUTEZ CECI
+  //           genre_prefere: data.user.genre_prefere, // ✅ AJOUTEZ CECI
+  //         },
+  //       };
+
+  //       // On enregistre via le hook
+  //       login(userData);
+
+  //       // Redirection selon le rôle
+  //       if (data.user.role === "admin") {
+  //         navigate("/admin");
+  //       } else {
+  //         navigate("/explore");
+  //       }
+  //     } else {
+  //       alert(data.error || "Email ou mot de passe incorrect.");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Erreur de connexion au serveur.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // ✅ Récupérer la page d'origine ou aller vers explore par défaut
+  const from = location.state?.from || '/explore';
+  const message = location.state?.message;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -31,31 +86,24 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log("🔐 Réponse du login:", data);
 
-      // Dans handleSubmit du Login.jsx - CORRIGEZ cette partie :
       if (response.ok) {
         const userData = {
           token: data.token,
           user: {
             id: data.user.id,
-            nom: data.user.nom, // ✅ AJOUTEZ CECI
-            email: data.user.email, // ✅ AJOUTEZ CECI
+            nom: data.user.nom,
+            email: data.user.email,
             role: data.user.role,
-            telephone: data.user.telephone, // ✅ AJOUTEZ CECI
-            genre_prefere: data.user.genre_prefere, // ✅ AJOUTEZ CECI
           },
         };
 
-        // On enregistre via le hook
         login(userData);
 
-        // Redirection selon le rôle
-        if (data.user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/explore");
-        }
+        // ✅ REDIRECTION VERS LA PAGE DEMANDÉE
+        console.log('🔄 Redirection vers:', from);
+        navigate(from, { replace: true });
+
       } else {
         alert(data.error || "Email ou mot de passe incorrect.");
       }
@@ -97,7 +145,20 @@ export default function Login() {
           >
             Bienvenue dans la communauté littéraire
           </motion.p>
+
+           {/* ✅ MESSAGE DE REDIRECTION */}
+          {message && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-blue-100 border border-blue-300 text-blue-700 px-4 py-3 rounded-lg mb-4 text-sm"
+            >
+              {message}
+            </motion.div>
+          )}
         </div>
+
+
 
         {/* Formulaire */}
         <motion.form

@@ -1,43 +1,3 @@
-// import { createContext, useContext, useState, useEffect } from "react";
-
-// const AuthContext = createContext();
-
-// export function AuthProvider({ children }) {
-//   const [user, setUser] = useState(() => {
-//     const storedUser = localStorage.getItem("vakio_user");
-//     return storedUser ? JSON.parse(storedUser) : null;
-//   });
-
-//   // Connexion
-//   const login = (data) => {
-//     setUser(data);
-//     localStorage.setItem("vakio_user", JSON.stringify(data));
-//   };
-
-//   // Déconnexion
-//   const logout = () => {
-//     setUser(null);
-//     localStorage.removeItem("vakio_user");
-//   };
-
-//   // Vérification
-//   useEffect(() => {
-//     const storedUser = localStorage.getItem("vakio_user");
-//     if (storedUser) {
-//       setUser(JSON.parse(storedUser));
-//     }
-//   }, []);
-
-//   return (
-//     <AuthContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// }
-
-// export function useAuth() {
-//   return useContext(AuthContext);
-// }
 import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
@@ -69,32 +29,51 @@ export function AuthProvider({ children }) {
   // Vérification de la validité du token
   const isTokenValid = () => {
     if (!user?.token) return false;
-    
+
     try {
-      // Vérification basique du token (vous pouvez ajouter une vérification JWT)
-      const tokenParts = user.token.split('.');
-      return tokenParts.length === 3; // Un JWT valide a 3 parties
+      const tokenParts = user.token.split(".");
+      return tokenParts.length === 3;
     } catch {
       return false;
     }
   };
 
+  const getUserRole = () => {
+    if (!user) return null;
+
+    const role = user.user?.role || user.role;
+    console.log("🔍 [useAuth] Rôle trouvé:", role);
+    return role;
+  };
+
+  const isAdmin = () => {
+    const role = getUserRole();
+    const adminStatus = role === "admin";
+    console.log("🔍 [useAuth] isAdmin:", adminStatus);
+    return adminStatus;
+  };
+
   useEffect(() => {
     if (!isTokenValid()) {
-      logout(); // Déconnecter si token invalide
+      logout();
     }
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout,
-      isAuthenticated: !!user?.token && isTokenValid()
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    login,
+    logout,
+    isAuthenticated: !!user?.token && isTokenValid(),
+    isAdmin: isAdmin(),
+  };
+
+  console.log("🔍 [useAuth] Valeur du contexte:", {
+    user: user,
+    isAuthenticated: !!user?.token && isTokenValid(),
+    isAdmin: isAdmin(),
+  });
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -102,5 +81,8 @@ export function useAuth() {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
+
+  console.log("🔍 [useAuth] Hook utilisé - isAdmin:", context.isAdmin);
+
   return context;
 }

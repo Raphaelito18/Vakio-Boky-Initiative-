@@ -1,36 +1,48 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  FiUser, FiMail, FiPhone, FiBook, FiCamera, 
-  FiLock, FiSave, FiEdit3, FiX 
-} from 'react-icons/fi';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
-import { useAuth } from '../../hooks/useAuth';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiBook,
+  FiCamera,
+  FiLock,
+  FiSave,
+  FiEdit3,
+  FiX,
+  FiHeart,
+  FiLogOut,
+} from "react-icons/fi";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    nom: '',
-    telephone: '',
-    genre_prefere: '',
-    bio: '',
-    accepte_newsletter: false
+    nom: "",
+    telephone: "",
+    genre_prefere: "",
+    bio: "",
+    accepte_newsletter: false,
   });
 
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const { user, logout } = useAuth();
+
+  const fileInputRef = useState(null);
 
   useEffect(() => {
     fetchProfile();
@@ -39,9 +51,9 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       const token = user?.token;
-      const response = await fetch('http://localhost:5000/api/profile', {
+      const response = await fetch("http://localhost:5000/api/profile", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -50,35 +62,138 @@ export default function Profile() {
       if (response.ok) {
         setProfile(data.user);
         setFormData({
-          nom: data.user.nom || '',
-          telephone: data.user.telephone || '',
-          genre_prefere: data.user.genre_prefere || '',
-          bio: data.user.bio || '',
-          accepte_newsletter: data.user.accepte_newsletter || false
+          nom: data.user.nom || "",
+          telephone: data.user.telephone || "",
+          genre_prefere: data.user.genre_prefere || "",
+          bio: data.user.bio || "",
+          accepte_newsletter: data.user.accepte_newsletter || false,
         });
       } else {
-        setMessage('Erreur lors du chargement du profil');
+        setMessage("Erreur lors du chargement du profil");
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion au serveur');
+      console.error("Erreur:", error);
+      setMessage("Erreur de connexion au serveur");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenFileSelector = () => {
+    document.getElementById("profilePhotoInput").click();
+  };
+
+  // Upload photo
+  const handlePhotoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validation
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("❌ La photo ne doit pas dépasser 5MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setMessage("❌ Veuillez sélectionner une image valide");
+      return;
+    }
+
+    setUploading(true);
+    setMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const token = user?.token;
+      const response = await fetch(
+        "http://localhost:5000/api/profile/picture",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("✅ Photo de profil mise à jour avec succès");
+        setProfile((prev) => ({
+          ...prev,
+          photo_profil: data.photoUrl,
+        }));
+      } else {
+        setMessage(data.error || "❌ Erreur lors de l'upload");
+      }
+    } catch (error) {
+      console.error("Erreur upload:", error);
+      setMessage("❌ Erreur de connexion au serveur");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  // Supprimer
+  const handleRemovePhoto = async () => {
+    if (
+      !window.confirm(
+        "Êtes-vous sûr de vouloir supprimer votre photo de profil ?"
+      )
+    ) {
+      return;
+    }
+
+    setUploading(true);
+    setMessage("");
+
+    try {
+      const token = user?.token;
+      const response = await fetch(
+        "http://localhost:5000/api/profile/picture",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("✅ Photo de profil supprimée");
+        setProfile((prev) => ({
+          ...prev,
+          photo_profil: null,
+        }));
+      } else {
+        setMessage(data.error || "❌ Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur suppression photo:", error);
+      setMessage("❌ Erreur de connexion au serveur");
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
+    setMessage("");
 
     try {
       const token = user?.token;
-      const response = await fetch('http://localhost:5000/api/profile', {
-        method: 'PUT',
+      const response = await fetch("http://localhost:5000/api/profile", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -87,14 +202,14 @@ export default function Profile() {
 
       if (response.ok) {
         setProfile(data.user);
-        setMessage('✅ Profil mis à jour avec succès');
+        setMessage("✅ Profil mis à jour avec succès");
         setIsEditing(false);
       } else {
-        setMessage(data.error || 'Erreur lors de la mise à jour');
+        setMessage(data.error || "Erreur lors de la mise à jour");
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion au serveur');
+      console.error("Erreur:", error);
+      setMessage("Erreur de connexion au serveur");
     } finally {
       setSaving(false);
     }
@@ -102,61 +217,64 @@ export default function Profile() {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage('Les nouveaux mots de passe ne correspondent pas');
+      setMessage("Les nouveaux mots de passe ne correspondent pas");
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      setMessage('Le nouveau mot de passe doit contenir au moins 6 caractères');
+      setMessage("Le nouveau mot de passe doit contenir au moins 6 caractères");
       return;
     }
 
     setSaving(true);
-    setMessage('');
+    setMessage("");
 
     try {
       const token = user?.token;
-      const response = await fetch('http://localhost:5000/api/profile/password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/profile/password",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('✅ Mot de passe modifié avec succès');
+        setMessage("✅ Mot de passe modifié avec succès");
         setIsChangingPassword(false);
         setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
         });
       } else {
-        setMessage(data.error || 'Erreur lors du changement de mot de passe');
+        setMessage(data.error || "Erreur lors du changement de mot de passe");
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage('Erreur de connexion au serveur');
+      console.error("Erreur:", error);
+      setMessage("Erreur de connexion au serveur");
     } finally {
       setSaving(false);
     }
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handlePasswordChange = (field, value) => {
-    setPasswordData(prev => ({ ...prev, [field]: value }));
+    setPasswordData((prev) => ({ ...prev, [field]: value }));
   };
 
   if (loading) {
@@ -182,7 +300,9 @@ export default function Profile() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Mon Profil</h1>
-              <p className="text-gray-600">Gérez vos informations personnelles</p>
+              <p className="text-gray-600">
+                Gérez vos informations personnelles
+              </p>
             </div>
             <div className="flex space-x-3">
               {!isEditing && !isChangingPassword && (
@@ -215,9 +335,9 @@ export default function Profile() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className={`p-4 rounded-lg mb-6 ${
-              message.includes('✅') 
-                ? 'bg-green-100 text-green-800 border border-green-200' 
-                : 'bg-red-100 text-red-800 border border-red-200'
+              message.includes("✅")
+                ? "bg-green-100 text-green-800 border border-green-200"
+                : "bg-red-100 text-red-800 border border-red-200"
             }`}
           >
             {message}
@@ -225,7 +345,6 @@ export default function Profile() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Colonne principale */}
           <div className="lg:col-span-2 space-y-6">
             {/* Informations personnelles */}
             <motion.div
@@ -249,41 +368,59 @@ export default function Profile() {
               </div>
 
               {!isEditing ? (
-                // Affichage des informations
+                // Affichage
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Nom complet</label>
+                      <label className="text-sm font-medium text-gray-500">
+                        Nom complet
+                      </label>
                       <p className="text-gray-900">{profile?.nom}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Email</label>
+                      <label className="text-sm font-medium text-gray-500">
+                        Email
+                      </label>
                       <p className="text-gray-900">{profile?.email}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Téléphone</label>
-                      <p className="text-gray-900">{profile?.telephone || 'Non renseigné'}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        Téléphone
+                      </label>
+                      <p className="text-gray-900">
+                        {profile?.telephone || "Non renseigné"}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Rôle</label>
-                      <p className="text-gray-900 capitalize">{profile?.role}</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        Rôle
+                      </label>
+                      <p className="text-gray-900 capitalize">
+                        {profile?.role}
+                      </p>
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Genre littéraire préféré</label>
-                    <p className="text-gray-900">{profile?.genre_prefere || 'Non renseigné'}</p>
+                    <label className="text-sm font-medium text-gray-500">
+                      Genre littéraire préféré
+                    </label>
+                    <p className="text-gray-900">
+                      {profile?.genre_prefere || "Non renseigné"}
+                    </p>
                   </div>
                   {profile?.bio && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Bio</label>
+                      <label className="text-sm font-medium text-gray-500">
+                        Bio
+                      </label>
                       <p className="text-gray-900">{profile.bio}</p>
                     </div>
                   )}
                 </div>
               ) : (
-                // Formulaire d'édition
+                // édition
                 <form onSubmit={handleUpdateProfile} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -293,7 +430,9 @@ export default function Profile() {
                       <Input
                         variant="primary"
                         value={formData.nom}
-                        onChange={(e) => handleInputChange('nom', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("nom", e.target.value)
+                        }
                         icon={<FiUser className="text-gray-400" />}
                         required
                       />
@@ -308,7 +447,9 @@ export default function Profile() {
                         disabled
                         icon={<FiMail className="text-gray-400" />}
                       />
-                      <p className="text-xs text-gray-500 mt-1">L'email ne peut pas être modifié</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        L'email ne peut pas être modifié
+                      </p>
                     </div>
                   </div>
 
@@ -320,7 +461,9 @@ export default function Profile() {
                       <Input
                         variant="primary"
                         value={formData.telephone}
-                        onChange={(e) => handleInputChange('telephone', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("telephone", e.target.value)
+                        }
                         icon={<FiPhone className="text-gray-400" />}
                         placeholder="06 12 34 56 78"
                       />
@@ -332,7 +475,9 @@ export default function Profile() {
                       <Input
                         variant="primary"
                         value={formData.genre_prefere}
-                        onChange={(e) => handleInputChange('genre_prefere', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("genre_prefere", e.target.value)
+                        }
                         icon={<FiBook className="text-gray-400" />}
                         placeholder="Roman, Poésie, Science-fiction..."
                       />
@@ -345,7 +490,7 @@ export default function Profile() {
                     </label>
                     <textarea
                       value={formData.bio}
-                      onChange={(e) => handleInputChange('bio', e.target.value)}
+                      onChange={(e) => handleInputChange("bio", e.target.value)}
                       rows="3"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Parlez-nous de vous..."
@@ -357,10 +502,18 @@ export default function Profile() {
                       type="checkbox"
                       id="newsletter"
                       checked={formData.accepte_newsletter}
-                      onChange={(e) => handleInputChange('accepte_newsletter', e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "accepte_newsletter",
+                          e.target.checked
+                        )
+                      }
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <label htmlFor="newsletter" className="ml-2 text-sm text-gray-700">
+                    <label
+                      htmlFor="newsletter"
+                      className="ml-2 text-sm text-gray-700"
+                    >
                       Recevoir les actualités littéraires et les nouveautés
                     </label>
                   </div>
@@ -373,7 +526,7 @@ export default function Profile() {
                       className="flex items-center"
                     >
                       <FiSave className="mr-2" />
-                      {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+                      {saving ? "Sauvegarde..." : "Sauvegarder"}
                     </Button>
                     <Button
                       type="button"
@@ -387,7 +540,6 @@ export default function Profile() {
               )}
             </motion.div>
 
-            {/* Changement de mot de passe */}
             {isChangingPassword && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -415,7 +567,9 @@ export default function Profile() {
                       variant="primary"
                       type="password"
                       value={passwordData.currentPassword}
-                      onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
+                      onChange={(e) =>
+                        handlePasswordChange("currentPassword", e.target.value)
+                      }
                       icon={<FiLock className="text-gray-400" />}
                       required
                     />
@@ -430,7 +584,9 @@ export default function Profile() {
                         variant="primary"
                         type="password"
                         value={passwordData.newPassword}
-                        onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
+                        onChange={(e) =>
+                          handlePasswordChange("newPassword", e.target.value)
+                        }
                         icon={<FiLock className="text-gray-400" />}
                         required
                         minLength="6"
@@ -444,7 +600,12 @@ export default function Profile() {
                         variant="primary"
                         type="password"
                         value={passwordData.confirmPassword}
-                        onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                        onChange={(e) =>
+                          handlePasswordChange(
+                            "confirmPassword",
+                            e.target.value
+                          )
+                        }
                         icon={<FiLock className="text-gray-400" />}
                         required
                       />
@@ -459,7 +620,7 @@ export default function Profile() {
                       className="flex items-center"
                     >
                       <FiSave className="mr-2" />
-                      {saving ? 'Changement...' : 'Changer le mot de passe'}
+                      {saving ? "Changement..." : "Changer le mot de passe"}
                     </Button>
                     <Button
                       type="button"
@@ -474,41 +635,94 @@ export default function Profile() {
             )}
           </div>
 
-          {/* Colonne latérale */}
           <div className="space-y-6">
-            {/* Photo de profil */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 text-center"
             >
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full mx-auto mb-4 flex items-center justify-center">
-                {profile?.photo_profil ? (
-                  <img
-                    src={profile.photo_profil}
-                    alt="Profile"
-                    className="w-32 h-32 rounded-full object-cover"
-                  />
-                ) : (
-                  <FiUser size={48} className="text-blue-600" />
+              {/* Input file caché */}
+              <input
+                id="profilePhotoInput"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+
+              <div className="relative group mb-4">
+                <div
+                  className="w-32 h-32 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full mx-auto flex items-center justify-center overflow-hidden cursor-pointer"
+                  onClick={handleOpenFileSelector}
+                >
+                  {profile?.photo_profil ? (
+                    <img
+                      src={`http://localhost:5000${profile.photo_profil}`}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FiUser size={48} className="text-blue-600" />
+                  )}
+
+                  {/* Overlay au survol */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <FiCamera size={24} className="text-white" />
+                    <span className="text-white text-xs mt-10">
+                      Cliquer pour changer
+                    </span>
+                  </div>
+                </div>
+
+                {uploading && (
+                  <div className="absolute inset-0 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
                 )}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">{profile?.nom}</h3>
+
+              <h3 className="text-lg font-semibold text-gray-900">
+                {profile?.nom}
+              </h3>
               <p className="text-gray-600 capitalize">{profile?.role}</p>
               <p className="text-sm text-gray-500 mt-2">
-                Membre depuis {new Date(profile?.created_at).toLocaleDateString('fr-FR')}
+                Membre depuis{" "}
+                {new Date(profile?.created_at).toLocaleDateString("fr-FR")}
               </p>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-4 w-full flex items-center justify-center"
-                onClick={() => {/* Fonctionnalité upload photo */}}
-              >
-                <FiCamera className="mr-2" />
-                Changer la photo
-              </Button>
+
+              <div className="mt-4 space-y-2">
+                {/* Bouton pour changer la photo */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full flex items-center justify-center"
+                  onClick={handleOpenFileSelector}
+                  disabled={uploading}
+                >
+                  <FiCamera className="mr-2" />
+                  {uploading ? "Upload..." : "Changer la photo"}
+                </Button>
+
+                {/* Bouton pour supprimer la photo (seulement si une photo existe) */}
+                {profile?.photo_profil && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full flex items-center justify-center text-red-600 hover:text-red-700 hover:border-red-200"
+                    onClick={handleRemovePhoto}
+                    disabled={uploading}
+                  >
+                    <FiX className="mr-2" />
+                    Supprimer la photo
+                  </Button>
+                )}
+              </div>
+
+              <p className="text-xs text-gray-400 mt-3">
+                PNG, JPG, JPEG max 5MB
+              </p>
             </motion.div>
 
             {/* Statistiques */}
@@ -518,7 +732,9 @@ export default function Profile() {
               transition={{ delay: 0.3 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6"
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Statistiques
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Livres lus</span>
@@ -535,30 +751,29 @@ export default function Profile() {
               </div>
             </motion.div>
 
-            {/* Actions rapides */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6"
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Actions
+              </h3>
               <div className="space-y-2">
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full justify-start"
-                  onClick={() => {/* Naviguer vers l'historique */}}
                 >
-                  📚 Historique de lecture
+                  <FiBook className="mr-2" /> Historique de lecture
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full justify-start"
-                  onClick={() => {/* Naviguer vers les favoris */}}
                 >
-                  ❤️ Mes favoris
+                  <FiHeart className="mr-2" /> Mes favoris
                 </Button>
                 <Button
                   variant="outline"
@@ -566,7 +781,7 @@ export default function Profile() {
                   className="w-full justify-start text-red-600 hover:text-red-700 hover:border-red-200"
                   onClick={logout}
                 >
-                  🚪 Déconnexion
+                  <FiLogOut className="mr-2" /> Déconnexion
                 </Button>
               </div>
             </motion.div>
