@@ -15,7 +15,6 @@ export default function App() {
 
       {/* --- Contenu principal --- */}
       <div className='relative z-10 pt-14'>
-        <Header />
 
         <main className='flex flex-col items-center justify-center text-center px-6 py-24 animate-fadeIn'>
           {/* --- Titre principal --- */}

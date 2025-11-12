@@ -21,7 +21,7 @@ export default function Header({ isLoggedIn = false }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   return (
-    <header className='fixed top-0 left-0 w-full bg-blue-100 border-b-4 border-blue-500/50 backdrop-blur-sm rounded-b-2xl shadow-md z-50'>
+    <header className='sticky top-0 left-0 w-full bg-blue-100 border-b-4 border-blue-500/50 backdrop-blur-sm rounded-b-2xl shadow-md z-50'>
       <nav className='flex items-center justify-between px-4 md:px-8 py-3'>
         {/* --- Logo / Nom --- */}
         <div className='flex items-center gap-3'>
