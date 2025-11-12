@@ -9,13 +9,17 @@ import Footer from './components/layout/Footer';
 export default function App() {
   return (
     <Router>
-      <Header />
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/explore' element={<Explore />} />
-        <Route path='/marketplace' element={<Marketplace />} />
-      </Routes>
-      <Footer />
+      <div className="main flex flex-col min-h-screen">
+        <Header />
+        <section className="grow">
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/explore' element={<Explore />} />
+            <Route path='/marketplace' element={<Marketplace />} />
+          </Routes>
+        </section>
+        <Footer />
+      </div>
     </Router>
   );
 }
