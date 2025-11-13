@@ -19,12 +19,11 @@ export default function Header({ isLoggedIn = false }) {
   const [search, setSearch] = useState('');
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-
   return (
-    <header className='sticky top-0 left-0 w-full bg-blue-100 border-b-4 border-blue-500/50 backdrop-blur-sm rounded-b-2xl shadow-md z-50'>
+    <header className='sticky top-0 left-0 w-full bg-blue-100 border-b-4 z-20'>
       <nav className='flex items-center justify-between px-4 md:px-8 py-3'>
         {/* --- Logo / Nom --- */}
-        <div className='flex items-center gap-3'>
+        <div className='flex items-center gap-5'>
           <div className='bg-blue-800 text-white rounded-lg px-3 py-2 text-center leading-tight'>
             <span className='block font-bold text-sm'>#Vakio_Boky</span>
             <span className='block text-xs font-light'>
